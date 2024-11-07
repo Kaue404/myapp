@@ -32,7 +32,7 @@ jobs:
         with:
           host: 201.23.3.86
           username: aluno
-          key: ${{ secrets.SSH_KEY }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
           port: 22
           script: |
             docker pull ${{ secrets.DOCKER_USERNAME }}/minha-aplicacao:${{ github.sha }}
