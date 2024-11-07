@@ -38,8 +38,7 @@ jobs:
         key: ${{ secrets.SERVER_SSH_KEY }}
         envs: DOCKER_IMAGE=${{ secrets.DOCKER_USERNAME }}/myapp:latest, PORT=8094
         script: |
-          docker pull $DOCKER_IMAGE
-          docker stop myapp || true
-          docker rm myapp || true
-          docker run -d -p $PORT:3000 --name myapp $DOCKER_IMAGE
-        
+            docker pull ${{ secrets.DOCKER_USERNAME }}/myapp:${{ github.sha }}
+            docker stop app-node || true
+            docker rm app-node || true
+            docker run -d --name app-node -p 8094:3000 ${{ secrets.DOCKER_USERNAME }}/myapp:${{ github.sha }}
