@@ -9,3 +9,11 @@ app.get('/', (req, res) => {
 app.listen(PORT, () => {
     console.log(`O servidor está rodando na porta: ${PORT}`);
 });
+
+process.on('uncaughtException', (err) => {
+    console.error('Exceção não tratada:', err);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('Rejeição não tratada em:', promise, 'Motivo:', reason);
+});
