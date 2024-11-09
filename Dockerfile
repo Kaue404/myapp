@@ -1,13 +1,13 @@
-FROM node:20-alpine
+FROM node:14
 
 WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm ci
+RUN npm install
 
 COPY . .
 
-EXPOSE 8094
+EXPOSE 80
 
 CMD ["node", "index.js"]
