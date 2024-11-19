@@ -20,20 +20,25 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and Push Docker image
-        run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/myapp:${{ github.sha }} .
-          docker push ${{ secrets.DOCKER_USERNAME }}/myapp:${{ github.sha }}
-          
-      - name: Deploy on Server
-        uses: appleboy/ssh-action@master
+
+      - name: Build / Push Docker image
+        uses: docker/build-push-action@v6
         with:
-          host: 201.23.3.86
-          username: aluno
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          port: 22
-          script: |
-            docker pull ${{ secrets.DOCKER_USERNAME }}/myapp:${{ github.sha }}
-            docker stop app-node || true
-            docker rm app-node || true
-            docker run -d --name app-node -p 8094:8094 ${{ secrets.DOCKER_USERNAME }}/myapp:${{ github.sha }}
+            context: .
+            push: true
+            tags: ${{ secrets.DOCKER_USERNAME }}/myapp:${{ github.sha }}
+  
+      - name: Deploy on Server
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+            host: ${{ secrets.SERVER_IP }}
+            port: ${{ secrets.SERVER_SSH_PORT || 22 }}
+            username: aluno
+            key: ${{ secrets.SERVER_SSH_KEY }}
+            debug: true
+            script: |
+              docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+              docker pull ${{ secrets.DOCKER_USERNAME }}/myapp:${{ github.sha }}
+              docker stop app-node || true
+              docker rm app-node || true
+              docker run -d -p ${{ secrets.SERVER_PORT }}:8094 --name app-node ${{ secrets.DOCKER_USERNAME }}/myapp:${{ github.sha }}
